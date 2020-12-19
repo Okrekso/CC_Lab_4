@@ -1,0 +1,14 @@
+  373  aws elbv2 create-load-balancer --name forLAB4 --subnets subnet-0cd2d6259ea6394b7 subnet-08232d48657f50286 --scheme internet-facing --type application
+  374  aws ec2 create-security-group --group-name forLAB4 --description forLAB4
+  375  aws ec2 authorize-security-group-ingress --protocol tcp --port 22 --cidr 0.0.0.0/0 --group-id sg-0ef8e761cc2f22831
+  376  aws ec2 authorize-security-group-ingress --protocol tcp --port 80 --cidr 0.0.0.0/0 --group-id sg-0ef8e761cc2f22831
+  377  aws elbv2 set-security-groups --load-balancer-arn arn:aws:elasticloadbalancing:us-west-2:643110165669:loadbalancer/app/forLAB4/dafee2b1cb6b986a --security-groups sg-0b5edb0172ced7104
+  383  aws ec2 run-instances --image-id $CUSTOM_IMAGE_ID --count 2 --instance-type t2.micro --key-name keypair.pem --associate-public-ip-address --security-group-ids sg-0b5edb0172ced7104
+  384  aws ec2 run-instances --image-id $CUSTOM_IMAGE_ID --count 2 --instance-type t2.micro --key-name lab3keypair --associate-public-ip-address --security-group-ids sg-0b5edb0172ced7104
+  385  aws elbv2 create-target-group --name forLAB4 --target-type instance --protocol HTTP --port 80 --vpc-id vpc-0c26c15ad6346113d
+  391  aws elbv2 register-targets --target-group-arn arn:aws:elasticloadbalancing:us-west-2:643110165669:targetgroup/forLAB4/c6fadfcae8f3808e --targets Id=i-08cfcda4a86e5af51 Id=i-0eeb43a0839cfe727
+  396  aws elbv2 create-listener --load-balancer-arn arn:aws:elasticloadbalancing:us-west-2:643110165669:loadbalancer/app/forLAB4/dafee2b1cb6b986a --protocol HTTP --port 80 --default-actions forward, TargetGroupArn=arn:aws:elasticloadbalancing:us-west-2:643110165669:loadbalancer/app/forLAB4/dafee2b1cb6b986a
+  400  aws elbv2 create-listener --load-balancer-arn arn:aws:elasticloadbalancing:us-west-2:643110165669:loadbalancer/app/forLAB4/dafee2b1cb6b986a --protocol HTTP --port 80 --default-actions Type=forward,TargetGroupArn=arn:aws:elasticloadbalancing:us-west-2:643110165669:targetgroup/forLAB4/c6fadfcae8f3808e
+  408  aws ec2 create-launch-template --launch-template-name forLAB4 --version-description forLAB4 --launch-template-data '{"NetworkInterfaces":[{"AssociatePublicIpAddress":true,"DeviceIndex":0,"SubnetId":"subnet-082
+  413  aws autoscaling create-auto-scaling-group --auto-scaling-group-name forLAB4 --launch-template LaunchTemplateId=lt-0088502f6fd04b51a --min-size 2 --desired-capacity 2 --max-size 2 --vpc-zone-identifier subnet-08232d48657f50286 --target-group-arns arn:aws:elasticloadbalancing:us-west-2:643110165669:targetgroup/forLAB4/c6fadfcae8f3808e
+
